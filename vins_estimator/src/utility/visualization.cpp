@@ -8,10 +8,11 @@
  *******************************************************/
 
 #include "visualization.h"
-
+#include <geometry_msgs/PoseStamped.h>
 using namespace ros;
 using namespace Eigen;
 ros::Publisher pub_odometry, pub_latest_odometry;
+ros::Publisher px4_publisher;
 ros::Publisher pub_path;
 ros::Publisher pub_point_cloud, pub_margin_cloud;
 ros::Publisher pub_key_poses;
@@ -45,6 +46,7 @@ void registerPub(ros::NodeHandle &n)
     pub_keyframe_point = n.advertise<sensor_msgs::PointCloud>("keyframe_point", 1000);
     pub_extrinsic = n.advertise<nav_msgs::Odometry>("extrinsic", 1000);
     pub_image_track = n.advertise<sensor_msgs::Image>("image_track", 1000);
+    px4_publisher = n.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1000);
 
     cameraposevisual.setScale(0.1);
     cameraposevisual.setLineWidth(0.01);
@@ -65,7 +67,14 @@ void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, co
     odometry.twist.twist.linear.x = V.x();
     odometry.twist.twist.linear.y = V.y();
     odometry.twist.twist.linear.z = V.z();
+
     pub_latest_odometry.publish(odometry);
+
+    geometry_msgs::PoseStamped px4_pose_msg;
+    px4_pose_msg.header.stamp = ros::Time(t);
+    px4_pose_msg.pose.position = odometry.pose.pose.position;
+    px4_pose_msg.pose.orientation = odometry.pose.pose.orientation;
+    px4_publisher.publish(px4_pose_msg);
 }
 
 void pubTrackImage(const cv::Mat &imgTrack, const double t)
