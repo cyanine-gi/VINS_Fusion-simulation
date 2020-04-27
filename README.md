@@ -1,18 +1,30 @@
 Usage:
+
 mkdir -p VINS_ENV/src
+
 cd VINS_ENV/src
+
 git clone https://github.com/cyanine-gi/VINS_Fusion-simulation
+
 catkin_init_workspace
+
 cd ..
+
 source devel/setup.bash
+
 catkin_make
 
 
 to run simulation: run_simulation.sh
+
 to start rviz: start_rviz.sh
+
 Standard config of this model:refer to iris_stereo_gray_6_cam_highfreq_imu.sdf
+
 /mavros/vision/pose which has the same info and freq with /vins_estimator/imu_propagated is published.Use it directly in GAAS.
+
 High freq IMU is vital to a stable estimation of pose while vins is in loop. We recommend you use vision_position and vision_yaw, remove barometer.
+
 
 
 ----------------
