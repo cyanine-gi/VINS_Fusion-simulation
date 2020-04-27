@@ -12,7 +12,7 @@
 using namespace ros;
 using namespace Eigen;
 ros::Publisher pub_odometry, pub_latest_odometry;
-ros::Publisher px4_publisher;
+ros::Publisher px4_publisher,vision_frame_publisher;
 ros::Publisher pub_path;
 ros::Publisher pub_point_cloud, pub_margin_cloud;
 ros::Publisher pub_key_poses;
@@ -47,6 +47,7 @@ void registerPub(ros::NodeHandle &n)
     pub_extrinsic = n.advertise<nav_msgs::Odometry>("extrinsic", 1000);
     pub_image_track = n.advertise<sensor_msgs::Image>("image_track", 1000);
     px4_publisher = n.advertise<geometry_msgs::PoseStamped>("/mavros/vision_pose/pose",1000);
+    vision_frame_publisher = n.advertise<geometry_msgs::PoseStamped>("/gaas/vision_pose",1000);
 
     cameraposevisual.setScale(0.1);
     cameraposevisual.setLineWidth(0.01);
@@ -240,6 +241,12 @@ void pubCameraPose(const Estimator &estimator, const std_msgs::Header &header)
         odometry.pose.pose.orientation.w = R.w();
 
         pub_camera_pose.publish(odometry);
+        geometry_msgs::PoseStamped gaas_vision_pose_msg;
+        //gaas_vision_pose_msg.header.stamp = header.stamp;
+        gaas_vision_pose_msg.header = header;
+        gaas_vision_pose_msg.pose.position = odometry.pose.pose.position;
+        gaas_vision_pose_msg.pose.orientation = odometry.pose.pose.orientation;
+        vision_frame_publisher.publish(gaas_vision_pose_msg);
 
         cameraposevisual.reset();
         cameraposevisual.add_pose(P, R);
