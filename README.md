@@ -1,3 +1,5 @@
+## **The updated repository for OpenCV 3.x and above versions**
+
 Usage:
 
 mkdir -p VINS_ENV/src
